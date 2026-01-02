@@ -1,13 +1,21 @@
 import React, { useState } from "react";
-import { Moon, Sun, Menu, X, Github, Linkedin } from "lucide-react";
+import { Moon, Sun, Menu, X, Github, Linkedin, LogIn, LogOut, User } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
   };
 
   const navLinks = [
@@ -49,6 +57,29 @@ export default function Navbar() {
             <Linkedin size={20} />
           </a>
 
+          <div className="h-6 w-px bg-gray-300 dark:bg-gray-700 mx-2"></div>
+
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-semibold text-sky-600">{user.name}</span>
+              <button
+                onClick={logout}
+                className="flex items-center gap-2 text-red-500 hover:text-red-600 transition"
+                title="Logout"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleLogin}
+              className="flex items-center gap-2 text-sky-600 hover:text-sky-700 transition"
+            >
+              <LogIn size={20} />
+              <span>Login</span>
+            </button>
+          )}
+
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-lg border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-800 transition"
@@ -69,6 +100,13 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700">
           <nav className="flex flex-col items-center gap-4 py-5 text-slate-700 dark:text-slate-200 font-medium">
+            {user && (
+              <div className="flex items-center gap-2 text-sky-600 mb-2">
+                <User size={18} />
+                <span>{user.name}</span>
+              </div>
+            )}
+
             {navLinks.map((link) => (
               <a key={link.name} href={link.href} onClick={() => setMenuOpen(false)} className="hover:text-sky-600 transition">
                 {link.name}
@@ -85,6 +123,27 @@ export default function Navbar() {
                 <Linkedin size={20} />
               </a>
             </div>
+
+            <div className="flex items-center gap-4 mt-2 w-full justify-center px-4">
+              {user ? (
+                <button
+                  onClick={() => { logout(); setMenuOpen(false); }}
+                  className="flex items-center gap-2 text-red-500 border border-red-500 px-4 py-2 rounded-lg w-full justify-center"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => { handleLogin(); setMenuOpen(false); }}
+                  className="flex items-center gap-2 text-sky-600 border border-sky-600 px-4 py-2 rounded-lg w-full justify-center"
+                >
+                  <LogIn size={18} />
+                  Login
+                </button>
+              )}
+            </div>
+
             <button onClick={toggleDarkMode} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 mt-2">
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
               {darkMode ? "Light Mode" : "Dark Mode"}
